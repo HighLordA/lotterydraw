@@ -1,0 +1,87 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.8/angular.min.js"></script>
+    <link rel="stylesheet" href="http://apps.bdimg.com/libs/bootstrap/3.3.4/css/bootstrap.min.css">
+</head>
+<body>
+    <div ng-app="myApp" ng-controller="ctrl">
+        <button class="btn btn-primary btn-lg" ng-click="start()" ng-disabled="started">Start</button>
+        <button class="btn btn-success btn-lg" ng-click="reset()">Reset</button>
+        <div class="row">
+            <div class="col-md-4" ng-repeat="eachGroup in randomNames">
+                <table class="table table-striped ">
+                    <thead>
+                        <tr>
+                            <th>order</th>
+                            <th>Name</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="x in eachGroup">
+                            <td>{{$parent.$index *eachGroupCount+ $index+1}}</td>
+                            <td>{{ x}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+
+    var app = angular.module('myApp', []);
+    app.controller('ctrl', function ($scope, $interval) {
+        $scope.names = ['alex1', 'alex2', 'alex3', 'alex4', 'alex5', 'alex6', 'alex7', 'alex8', 'alex9', 'alex10', 'alex11', 'alex12', 'alex13', 'alex14',
+            'alex15', 'alex16', 'alex17', 'alex18', 'alex19', 'alex20',
+            'alex21', 'alex22','alex23'];
+        $scope.groupNumber = 3;
+        $scope.maxLengh = $scope.groupNumber - 1;
+        $scope.randomNames = [];
+        $scope.resetRandom = function () {
+            for (var i = 0; i < $scope.groupNumber; i++) {
+                $scope.randomNames[i] = [];
+            }
+        };
+        $scope.resetRandom();
+        $scope.Timer = null;
+        $scope.started = false;
+        $scope.eachGroupCount = Math.floor($scope.names.length / $scope.groupNumber);
+        $scope.lastGroupCount = $scope.eachGroupCount + ($scope.names.length % $scope.groupNumber);
+        $scope.shuffleArray = function (array) {
+            for (var i = array.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var temp = array[i];
+                array[i] = array[j];
+                array[j] = temp;
+            }
+        };
+        $scope.addNames = function () {
+            var lastGroup = $scope.randomNames[$scope.maxLengh];
+            if (lastGroup.length + 1 >= $scope.eachGroupCount && lastGroup.length < $scope.lastGroupCount) {
+                lastGroup.push($scope.names[lastGroup.length + $scope.eachGroupCount * ($scope.groupNumber - 1)])
+            } else {
+                var keepGoing = true;
+                angular.forEach($scope.randomNames, function (group, index) {
+                    if (keepGoing && group.length < $scope.eachGroupCount) {
+                        group.push($scope.names[group.length + $scope.eachGroupCount * index]);
+                        keepGoing = false;
+                    }
+                });
+            }
+        };
+        $scope.start = function () {
+			$scope.started = true;
+            $scope.shuffleArray($scope.names);
+            $scope.Timer = $interval($scope.addNames, 500);            
+        };
+        $scope.reset = function () {
+            if (angular.isDefined($scope.Timer)) {
+                $interval.cancel($scope.Timer);
+            }
+            $scope.resetRandom();
+            $scope.started = false;
+        }
+    });
+</script>
+</html>
